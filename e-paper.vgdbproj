@@ -17,16 +17,25 @@
         <Revision>1</Revision>
       </Version>
     </ToolchainID>
+    <RelativeSourceDirectory />
     <ConfigurationType>DEBUG</ConfigurationType>
     <BinaryDirectory>build/$(PlatformName)/$(ConfigurationName)</BinaryDirectory>
     <MakeCommandTemplate>
       <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
+      <RemoteHost>
+        <HostName>BuildMachine</HostName>
+        <Transport>BuiltinShortcut</Transport>
+      </RemoteHost>
       <Command>$(VISUALGDB_DIR)/ninja.exe</Command>
       <WorkingDirectory>$(BuildDir)</WorkingDirectory>
       <BackgroundMode xsi:nil="true" />
     </MakeCommandTemplate>
     <CMakeCommand>
       <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
+      <RemoteHost>
+        <HostName>BuildMachine</HostName>
+        <Transport>BuiltinShortcut</Transport>
+      </RemoteHost>
       <Command>$(SYSPROGS_CMAKE_PATH)</Command>
       <BackgroundMode xsi:nil="true" />
     </CMakeCommand>
@@ -51,6 +60,7 @@
         <BuildAllTargetsInSubdir>false</BuildAllTargetsInSubdir>
         <FoldSingleItemPathLevels>true</FoldSingleItemPathLevels>
       </ProjectItemSettings>
+      <TargetSpecificSettings />
       <SetLDLibraryPathFromDependentArtifacts>true</SetLDLibraryPathFromDependentArtifacts>
       <ProjectGUID>cdf23686-d09e-491b-97a7-22b9a7b5f0ce</ProjectGUID>
       <VirtualFolders />
@@ -63,6 +73,55 @@
           <Version>1.3.0</Version>
         </SDK>
         <UnoptimizeDebugBuilds>true</UnoptimizeDebugBuilds>
+        <ReferencedFrameworks>
+          <IDs>
+            <string>com.sysprogs.embedded.semihosting_and_profiler</string>
+          </IDs>
+          <Config>
+            <Entries>
+              <KeyValue>
+                <Key>com.sysprogs.efp.semihosting.buffer_size</Key>
+                <Value>4096</Value>
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.semihosting.stdio</Key>
+                <Value>1</Value>
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.semihosting.blocking_mode</Key>
+                <Value>1</Value>
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.semihosting_driver</Key>
+                <Value>1</Value>
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.counter</Key>
+                <Value />
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.address_validators</Key>
+                <Value />
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.nosampling</Key>
+                <Value>0</Value>
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.debugger_check</Key>
+                <Value />
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.rtos</Key>
+                <Value>USE_FREERTOS_IF_FOUND</Value>
+              </KeyValue>
+              <KeyValue>
+                <Key>com.sysprogs.efp.profiling.hold_interrupts</Key>
+                <Value />
+              </KeyValue>
+            </Entries>
+          </Config>
+        </ReferencedFrameworks>
       </Extension>
     </ProjectModeSettings>
   </Build>
@@ -84,6 +143,7 @@
     <ShowMessageAfterExecuting>true</ShowMessageAfterExecuting>
   </CustomShortcuts>
   <UserDefinedVariables />
+  <ImportedPropertySheets />
   <CodeSense>
     <Enabled>Unknown</Enabled>
     <ExtraSettings>
@@ -96,6 +156,8 @@
       <Enabled>false</Enabled>
     </CodeAnalyzerSettings>
   </CodeSense>
+  <Configurations />
+  <ProgramArgumentsSuggestions />
   <Debug xsi:type="com.visualgdb.debug.embedded">
     <AdditionalStartupCommands />
     <AdditionalGDBSettings>
@@ -169,7 +231,26 @@
     <ValidateEndOfStackAddress>true</ValidateEndOfStackAddress>
     <StopAtEntryPoint>false</StopAtEntryPoint>
     <EnableVirtualHalts>false</EnableVirtualHalts>
-    <DynamicAnalysisSettings />
+    <DynamicAnalysisSettings>
+      <StackVerifier>
+        <VerifyStackBounds>false</VerifyStackBounds>
+        <AutoStepOutOfHook>true</AutoStepOutOfHook>
+        <StackLimitControlledByUser>false</StackLimitControlledByUser>
+        <ExplicitSizeLimit>0</ExplicitSizeLimit>
+        <ExplicitStackBase>0</ExplicitStackBase>
+        <Mode>Auto</Mode>
+      </StackVerifier>
+      <RealTimeWatch>
+        <SupportRTOSAnalysis>false</SupportRTOSAnalysis>
+        <SupportFunctionInstrumentation>false</SupportFunctionInstrumentation>
+        <MeasureOverhead>true</MeasureOverhead>
+      </RealTimeWatch>
+      <InstrumentedFunctions>
+        <InstrumentNewFunctions>true</InstrumentNewFunctions>
+        <ExplicitEndOfFLASH>0</ExplicitEndOfFLASH>
+        <ExplicitEndOfRAM>0</ExplicitEndOfRAM>
+      </InstrumentedFunctions>
+    </DynamicAnalysisSettings>
     <EndOfStackSymbol>_estack</EndOfStackSymbol>
     <TimestampProviderTicksPerSecond>0</TimestampProviderTicksPerSecond>
     <KeepConsoleAfterExit>false</KeepConsoleAfterExit>
