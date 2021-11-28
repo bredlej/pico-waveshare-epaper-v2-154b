@@ -5,6 +5,7 @@
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
 #include <stdio.h>
+#include <pio_spi.h>
 
 #ifndef PICO_PLAYGROUND_PICO_WAVESHARE_EPAPER_1_54IN_H
 #define PICO_PLAYGROUND_PICO_WAVESHARE_EPAPER_1_54IN_H
@@ -24,14 +25,14 @@
 #define DEVICE_HEIGHT 200
 
 void blink(uint8_t, uint32_t);
-void initDevice();
+pio_spi_inst_t initDevice();
 void reset();
 void sendCommand(uint8_t);
 void sendData(uint8_t);
 void waitUntilBusy();
-void turnOnDisplay();
-void initDeviceRegisters();
-void clearScreen();
-void deepSleep();
+void turnOnDisplay(pio_spi_inst_t *spi);
+void initDeviceRegisters(pio_spi_inst_t *spi);
+void clearScreen(pio_spi_inst_t *spi);
+void deepSleep(pio_spi_inst_t *spi);
 
 #endif//PICO_PLAYGROUND_PICO_WAVESHARE_EPAPER_1_54IN_H

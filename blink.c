@@ -4,9 +4,9 @@
 
 int main() {
 
-	initDevice();
-	initDeviceRegisters();
-	clearScreen();
+	pio_spi_inst_t spi = initDevice();
+	initDeviceRegisters(&spi);
+	clearScreen(&spi);
 
 	bool isRunning = 1;
 	uint32_t seconds = 0;
@@ -19,7 +19,7 @@ int main() {
 			if (seconds > 10) {
 				isRunning = 0;
 				printf("Sleeping\n");
-				deepSleep();
+				deepSleep(&spi);
 			}
 		}
 
