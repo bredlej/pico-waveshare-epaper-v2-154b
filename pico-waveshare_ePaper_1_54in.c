@@ -149,6 +149,7 @@ void sendCommand(uint8_t reg) {
 void spi_send_command(pio_spi_inst_t *spi, const u_int8_t command)
 {
 	gpio_put(spi->cs_pin, 0);
+	gpio_put(PIN_DC, 0);
 	pio_spi_write8_blocking(spi, &command, 1);
 	gpio_put(spi->cs_pin, 1);
 	waitUntilBusy(spi);
@@ -287,7 +288,8 @@ void clearScreen(pio_spi_inst_t *spi) {
 		for (x = 0; x < 25; x++)
 		{
 			//sendData(y % 20 == 0 && x % 2 == 0 ? 0x00 : 0xff);
-			spi_send_data(spi, 0xff); 
+			//spi_send_data(spi, 0xff); 
+			spi_send_data(spi, y % 20 == 0 && x % 2 == 0 ? 0x00 : 0xff); 
 			//sendData(0xff);
 		}
 	}
@@ -299,7 +301,8 @@ void clearScreen(pio_spi_inst_t *spi) {
 		{			
 			//sendData(x % 2 ==0 ? 0x00 : 0x81);
 			//sendData(0x00);
-			spi_send_data(spi, 0x00);
+			//spi_send_data(spi, 0x00);
+			spi_send_data(spi, x % 2 == 0 ? 0x00 : 0x81);
 		}
 	}
 	waitUntilBusy(spi);
