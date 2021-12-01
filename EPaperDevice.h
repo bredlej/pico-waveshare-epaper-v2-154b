@@ -1,13 +1,11 @@
 #pragma once
 #include <array>
-#include <concepts>
 #include <hardware/gpio.h>
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
 #include <pio_spi.h>
 #include <stdio.h>
 #include <vector>
-#include <memory>
 
 enum class Colors : uint8_t
 {
@@ -49,7 +47,6 @@ namespace Devices
 
 struct Command
 {
-  public:
 	uint8_t code;
 	std::initializer_list<uint8_t> data;
 };
@@ -59,36 +56,45 @@ namespace EPaperDevice
 	template <typename T>
 	struct Device
 	{
-		using Buffer = std::array<Colors, static_cast<u_int16_t>(T::width *T::height)>;
+		using Buffer = std::array<Colors, static_cast<uint16_t>(T::width * T::height)>;
 
 	  public:
 		Device(const Pins &&pins)
-			: _pins{std::move(pins)} {}
+			: _pins{std::move(pins)} { _initialize(); }
 		void run();
 		void sleep();
 		void render();
-
+		
 	  private:
 		Pins _pins;
-		Buffer _pixel_buffer;
+		Buffer _pixel_buffer{Colors::white};
 		pio_spi_inst_t _spi;
 		void _initialize();
 		void _reset();
 		void _wait_if_busy();
+		void _init_device_registers();
 		void _send_command(const Command &command);
-		void _send_command(const Command &&command);
-	};	
+		void _send_command(const Command &&command);		
+	};
 } // namespace EPaperDevice
   // namespace EPaperDevice
 
-template<typename T> void EPaperDevice::Device<T>::_send_command(const Command &command)
+template <typename T>
+void EPaperDevice::Device<T>::_send_command(const Command &command)
 {
-	gpio_put(_spi.cs_pin, 0);
-	gpio_put(_pins.data_command, 0);
-	pio_spi_write8_blocking(&_spi, &command.code, 1);
-	gpio_put(_spi.cs_pin, 1);
+	static constexpr auto transfer_data = [](const auto &_spi, const auto &_pins, const uint8_t dc_voltage, const uint8_t &data, const uint8_t size) -> void {
+		gpio_put(_spi.cs_pin, 0);
+		gpio_put(_pins.data_command, dc_voltage);
+		pio_spi_write8_blocking(&_spi, data, size);
+		gpio_put(_spi.cs_pin, 1);
+	};
+
+	transfer_data(_spi, _pins, 0, &command.code, 1);
+	transfer_data(_spi, _pins, 0, &command.data, command.data.size());
+
 	_wait_if_busy();
 }
+
 template <typename T>
 void EPaperDevice::Device<T>::_send_command(const Command &&command)
 {
