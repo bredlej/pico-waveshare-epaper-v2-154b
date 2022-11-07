@@ -48,7 +48,7 @@ namespace Devices
 struct Command
 {
 	uint8_t code;
-	std::initializer_list<uint8_t> data;
+	std::vector<uint8_t> data;
 };
 
 namespace EPaperDevice
@@ -79,18 +79,27 @@ namespace EPaperDevice
 } // namespace EPaperDevice
   // namespace EPaperDevice
 
+static void transfer_data(const pio_spi_inst_t &_spi, const Pins &_pins, const uint8_t dc_voltage, const std::vector<uint8_t> &data, const size_t size) {
+	gpio_put(_spi.cs_pin, 0);
+	gpio_put(_pins.data_command, dc_voltage);
+	pio_spi_write8_blocking(&_spi, data.data(), size);
+	gpio_put(_spi.cs_pin, 1);
+}
+
+static void transfer_command(const pio_spi_inst_t &_spi, const Pins &_pins, const uint8_t dc_voltage, const uint8_t code, const size_t size)
+{
+	gpio_put(_spi.cs_pin, 0);
+	gpio_put(_pins.data_command, dc_voltage);
+	pio_spi_write8_blocking(&_spi, &code, size);
+	gpio_put(_spi.cs_pin, 1);
+}
+
 template <typename T>
 void EPaperDevice::Device<T>::_send_command(const Command &command)
 {
-	static constexpr auto transfer_data = [](const auto &_spi, const auto &_pins, const uint8_t dc_voltage, const uint8_t &data, const uint8_t size) -> void {
-		gpio_put(_spi.cs_pin, 0);
-		gpio_put(_pins.data_command, dc_voltage);
-		pio_spi_write8_blocking(&_spi, data, size);
-		gpio_put(_spi.cs_pin, 1);
-	};
 
-	transfer_data(_spi, _pins, 0, &command.code, 1);
-	transfer_data(_spi, _pins, 0, &command.data, command.data.size());
+	transfer_command(_spi, _pins, 0, command.code, 1);
+	transfer_data(_spi, _pins, 1, command.data, command.data.size());
 
 	_wait_if_busy();
 }

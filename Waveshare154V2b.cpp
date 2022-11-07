@@ -1,4 +1,4 @@
-#include <EPaperDevice.h>
+#include <EPaperDevice.hpp>
 
 namespace Codes
 {
@@ -31,6 +31,7 @@ namespace Commands
 template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::_initialize()
 {
+	printf("_initialize()\n");
 	stdio_init_all();
 	_spi = {
 		.pio = pio0,
@@ -66,6 +67,7 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_initialize()
 template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::_reset()
 {
+	printf("Performing reset.\n");
 	gpio_put(_pins.reset, 1);
 	sleep_ms(200);
 	gpio_put(_pins.reset, 0);
@@ -77,6 +79,7 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_reset()
 template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::_wait_if_busy()
 {
+	printf("Performing reset.\n");
 	uint8_t data;
 	pio_spi_read8_blocking(&_spi, &data, 1);
 	while (data != 0x00)
@@ -90,6 +93,7 @@ template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::_init_device_registers()
 {
 	using namespace Commands;
+	printf("Initializing device registers.\n");
 	_reset();
 	_wait_if_busy();
 	_send_command(software_reset);
