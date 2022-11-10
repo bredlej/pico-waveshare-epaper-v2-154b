@@ -75,6 +75,7 @@ namespace EPaperDevice
 		void _reset();
 		void _wait_if_busy();
 		void _init_device_registers();
+		void _clear_screen();
 		void _send_command(const Command &command);
 		void _send_command(const Command &&command);		
 	};
@@ -82,11 +83,14 @@ namespace EPaperDevice
   // namespace EPaperDevice
 
 static void transfer_data(const pio_spi_inst_t &_spi, const Pins &_pins, const uint8_t dc_voltage, const std::vector<uint8_t> &data) {
-	gpio_put(_spi.cs_pin, 0);
 	gpio_put(_pins.data_command, dc_voltage);
-	printf("Sending data with size %d\n", data.size());
-	pio_spi_write8_blocking(&_spi, data.data(), data.size());
-	gpio_put(_spi.cs_pin, 1);
+	for (auto _data : data)
+	{
+		gpio_put(_spi.cs_pin, 0);
+		pio_spi_write8_blocking(&_spi, &_data, 1);
+		gpio_put(_spi.cs_pin, 1);
+	}
+
 }
 
 static void transfer_command(const pio_spi_inst_t &_spi, const Pins &_pins, const uint8_t dc_voltage, const uint8_t code, const size_t size)
@@ -100,11 +104,9 @@ static void transfer_command(const pio_spi_inst_t &_spi, const Pins &_pins, cons
 template <typename T>
 void EPaperDevice::Device<T>::_send_command(const Command &command)
 {
-
 	transfer_command(_spi, _pins, 0, command.code, 1);
-	transfer_data(_spi, _pins, 1, command.data);
-
 	_wait_if_busy();
+	transfer_data(_spi, _pins, 1, command.data);
 }
 
 template <typename T>

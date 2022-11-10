@@ -12,6 +12,8 @@ namespace Codes
 	static constexpr uint8_t set_border_wave = 0x3c;
 	static constexpr uint8_t unknown = 0x18;
 	static constexpr uint8_t unknown2 = 0x20;
+	static constexpr uint8_t draw_buffer_black = 0x24;
+	static constexpr uint8_t draw_buffer_red = 0x24;
 } // namespace Codes
 
 namespace Commands
@@ -26,6 +28,8 @@ namespace Commands
 	static const Command load_temperature_and_waveform = {Codes::unknown2};
 	static const Command set_ram_x_address_count = {Codes::ram_x_address_count, {0x00}};
 	static const Command set_ram_y_address_count = {Codes::ram_y_address_count, {0xc7, 0x00}};
+	static const Command draw_buffer_black = {Codes::draw_buffer_black};
+	static const Command draw_buffer_red = {Codes::draw_buffer_red};
 } // namespace Commands
 
 template <>
@@ -79,14 +83,15 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_reset()
 template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::_wait_if_busy()
 {
-	printf("... waiting ...\n");
 	uint8_t data;
 	pio_spi_read8_blocking(&_spi, &data, 1);
+	printf("Waiting: ");
 	while (data != 0x00)
 	{
-		sleep_ms(1);
+		sleep_ms(100);
 		pio_spi_read8_blocking(&_spi, &data, 1);
 	}
+	printf("done!\n");
 }
 
 template <>
@@ -98,6 +103,7 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_init_device_registers()
 	_wait_if_busy();
 	printf("Software reset.\n");
 	_send_command(software_reset);
+	_wait_if_busy();
 	printf("Driver output control..\n");
 	_send_command(driver_output_control);
 	printf("Data entry mode.\n");
@@ -119,7 +125,33 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_init_device_registers()
 }
 
 template <>
+void EPaperDevice::Device<Devices::Waveshare154V2b>::_clear_screen()
+{
+	printf("Clear screen.\n");
+	Command draw_black;
+	draw_black.code = 0x24;
+	Command draw_red;
+	draw_red.code = 0x26;
+	for (int y = 0; y < 200; y++)
+	{
+		for (int x = 0; x < 25; x++)
+		{
+			draw_black.data.push_back(0xff);
+			draw_red.data.push_back(0x00);
+		}
+	}
+	_send_command(draw_black);
+	_send_command(draw_red);
+	_wait_if_busy();
+	_send_command(Command{0x22, {0xc7}});
+	_send_command(Command{0x20});
+	_wait_if_busy();
+}
+
+template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::run()
 {
 	_init_device_registers();
+	_clear_screen();
+	_send_command(Command{0x10, {0x01}});
 }
