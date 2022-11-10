@@ -1,9 +1,11 @@
 #pragma once
+extern "C" {
+	#include <pio_spi.h>
+}
 #include <array>
 #include <hardware/gpio.h>
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
-#include <pio_spi.h>
 #include <stdio.h>
 #include <vector>
 
@@ -79,10 +81,11 @@ namespace EPaperDevice
 } // namespace EPaperDevice
   // namespace EPaperDevice
 
-static void transfer_data(const pio_spi_inst_t &_spi, const Pins &_pins, const uint8_t dc_voltage, const std::vector<uint8_t> &data, const size_t size) {
+static void transfer_data(const pio_spi_inst_t &_spi, const Pins &_pins, const uint8_t dc_voltage, const std::vector<uint8_t> &data) {
 	gpio_put(_spi.cs_pin, 0);
 	gpio_put(_pins.data_command, dc_voltage);
-	pio_spi_write8_blocking(&_spi, data.data(), size);
+	printf("Sending data with size %d\n", data.size());
+	pio_spi_write8_blocking(&_spi, data.data(), data.size());
 	gpio_put(_spi.cs_pin, 1);
 }
 
@@ -99,7 +102,7 @@ void EPaperDevice::Device<T>::_send_command(const Command &command)
 {
 
 	transfer_command(_spi, _pins, 0, command.code, 1);
-	transfer_data(_spi, _pins, 1, command.data, command.data.size());
+	transfer_data(_spi, _pins, 1, command.data);
 
 	_wait_if_busy();
 }

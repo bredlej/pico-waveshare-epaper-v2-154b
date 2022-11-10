@@ -79,7 +79,7 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_reset()
 template <>
 void EPaperDevice::Device<Devices::Waveshare154V2b>::_wait_if_busy()
 {
-	printf("Performing reset.\n");
+	printf("... waiting ...\n");
 	uint8_t data;
 	pio_spi_read8_blocking(&_spi, &data, 1);
 	while (data != 0x00)
@@ -96,15 +96,25 @@ void EPaperDevice::Device<Devices::Waveshare154V2b>::_init_device_registers()
 	printf("Initializing device registers.\n");
 	_reset();
 	_wait_if_busy();
+	printf("Software reset.\n");
 	_send_command(software_reset);
+	printf("Driver output control..\n");
 	_send_command(driver_output_control);
+	printf("Data entry mode.\n");
 	_send_command(data_entry_mode);
+	printf("X Addressing.\n");
 	_send_command(set_x_addressing);
+	printf("Y Adressing.\n");
 	_send_command(set_y_addressing);
+	printf("Border waveform.\n");
 	_send_command(set_border_waveform);
+	printf(". ??? .\n");
 	_send_command(unknown_command);
+	printf("Load temperature and waveform.\n");
 	_send_command(load_temperature_and_waveform);
+	printf("RAM X address count.\n");
 	_send_command(set_ram_x_address_count);
+	printf("RAM Y address count.\n");
 	_send_command(set_ram_y_address_count);
 }
 
